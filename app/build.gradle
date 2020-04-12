@@ -6,12 +6,20 @@ android {
     compileSdkVersion 29
     buildToolsVersion "29.0.3"
 
+    compileOptions {
+        sourceCompatibility = 1.8
+        targetCompatibility = 1.8
+    }
+
     defaultConfig {
         applicationId "id.ac.unhas.infocovid19"
         minSdkVersion 21
         targetSdkVersion 29
         versionCode 1
         versionName "1.0"
+
+        // base url dari api
+        buildConfigField 'String', 'BASE_URL', '"https://indonesia-covid-19.mathdro.id/api/"'
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -42,4 +50,8 @@ dependencies {
 
     //RecyclerView
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
+
+    // retrofit
+    implementation 'com.squareup.retrofit2:retrofit:2.7.1'
+    implementation 'com.squareup.retrofit2:converter-gson:2.7.1'
 }

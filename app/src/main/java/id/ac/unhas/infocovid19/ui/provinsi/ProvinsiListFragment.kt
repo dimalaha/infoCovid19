@@ -9,9 +9,18 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
+import id.ac.unhas.infocovid19.BuildConfig
 import id.ac.unhas.infocovid19.R
+import id.ac.unhas.infocovid19.model.DataProvinsi
 import id.ac.unhas.infocovid19.model.DataSource
+import id.ac.unhas.infocovid19.model.Provinsi
+import id.ac.unhas.infocovid19.network.ApiEndPoint
 import kotlinx.android.synthetic.main.provinsilist_fragment.*
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 
 class ProvinsiListFragment : Fragment() {
 
@@ -36,28 +45,40 @@ class ProvinsiListFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val jsonList:String =
-            activity?.applicationContext?.let {
-                DataSource.getJsonDataFromAsset(it, "provinsi.json")
-            }.toString()
-
-        val provinsiRepository = ProvinsiRepository(jsonList)
-
-        viewModelFactory =ProvinsiViewModelFactory(provinsiRepository)
-
-        viewModel = ViewModelProvider(this,viewModelFactory).get(ProvinsiViewModel::class.java)
-
-        viewModel.getMoviesFromRepo()
-
         Log.d("MainFragment","createView")
 
-        linearLayoutManager = LinearLayoutManager(context)
-        recyclerview.layoutManager = linearLayoutManager
+        val builder = Retrofit.Builder()
+            .baseUrl(BuildConfig.BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create())
 
-        val adapter = ProvinsiAdapter(viewModel.movies)
+        val retrofit = builder.build()
 
-        recyclerview.adapter = adapter
+        val apiEndPoint = retrofit.create(ApiEndPoint::class.java)
+        
+        apiEndPoint.getDataProvinsi().enqueue(object : Callback<DataProvinsi> {
+            override fun onFailure(call: Call<DataProvinsi>, t: Throwable) {
+                Log.e(this::class.java.simpleName, "Error: ${t.printStackTrace()}")
+            }
 
+            override fun onResponse(call: Call<DataProvinsi>, response: Response<DataProvinsi>) {
+                val dataProvinsi = response.body()?.data
+                linearLayoutManager = LinearLayoutManager(context)
+                recyclerview.layoutManager = linearLayoutManager
+                val adapter = ProvinsiAdapter(toArrayListOfStrings(dataProvinsi))
+                recyclerview.adapter = adapter
+                Log.d("Hasil parsing retrofit ", response.body().toString())
+            }
+        })
     }
 
+    private fun toArrayListOfStrings(dataProvinsi: List<Provinsi?>?): ArrayList<Provinsi> {
+        val listItems = ArrayList<Provinsi>(dataProvinsi?.size ?: 0)
+
+        dataProvinsi?.forEach {
+            if (it != null) {
+                listItems.add(it)
+            }
+        }
+        return listItems
+    }
 }

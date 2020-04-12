@@ -1,5 +1,7 @@
 package id.ac.unhas.infocovid19.model
 
+import com.google.gson.annotations.SerializedName
+
 data class DataProvinsi(
     val data: List<Provinsi?>?
 ){
