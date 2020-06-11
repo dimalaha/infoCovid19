@@ -54,7 +54,7 @@ class ProvinsiListFragment : Fragment() {
         val retrofit = builder.build()
 
         val apiEndPoint = retrofit.create(ApiEndPoint::class.java)
-        
+
         apiEndPoint.getDataProvinsi().enqueue(object : Callback<DataProvinsi> {
             override fun onFailure(call: Call<DataProvinsi>, t: Throwable) {
                 Log.e(this::class.java.simpleName, "Error: ${t.printStackTrace()}")
